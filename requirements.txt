@@ -1,8 +1,8 @@
 fastapi
 uvicorn
-google-genai
 python-dotenv
 pydantic
 scikit-learn
 numpy
 datasets
+openai
