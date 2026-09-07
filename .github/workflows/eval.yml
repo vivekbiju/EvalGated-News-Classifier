@@ -1,4 +1,4 @@
-name: Evaluation Gate
+name: Evaluation Gate and HF Sync
 
 on: [push]
 
@@ -7,12 +7,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
       - name: Install dependencies
         run: pip install -r requirements.txt
+
       - name: Run Evaluation Gate
         run: python eval.py
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+
+      - name: Push to Hugging Face Spaces
+        if: success()
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_USERNAME: ${{ secrets.HF_USERNAME }}
+        run: |
+          git push https://$HF_USERNAME:$HF_TOKEN@huggingface.co/spaces/$HF_USERNAME/EvalGated-News-Classifier main --force
