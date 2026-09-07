@@ -2,7 +2,7 @@ import os
 from typing import Literal, Optional
 from dotenv import load_dotenv
 from fastapi import FastAPI, status
-import gradio as gr  # <-- FIX 1: Added missing Gradio import
+import gradio as gr  
 from openai import OpenAI
 from pydantic import BaseModel, Field
 
@@ -56,6 +56,9 @@ Schema:
 """
 
 
+import json
+import re
+
 def classify_text(text: str) -> tuple[Optional[NewsLabel], int, int]:
     """Classifies text and returns (NewsLabel, prompt_tokens, completion_tokens)."""
     if not text.strip():
@@ -66,21 +69,28 @@ def classify_text(text: str) -> tuple[Optional[NewsLabel], int, int]:
             model="openai/gpt-oss-120b",
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": text},
+                {"role": "user", "content": text}
             ],
             response_format={"type": "json_object"},
             temperature=0.0,
         )
-        content = response.choices[0].message.content
-        label_obj = NewsLabel.model_validate_json(content)
+        content = response.choices[0].message.content or ""
+        
+        # Extract pure JSON object in case reasoning text pre-pends the string
+        json_match = re.search(r"\{.*\}", content, re.DOTALL)
+        if json_match:
+            clean_json = json_match.group(0)
+        else:
+            clean_json = content
 
-        # Extract token usage from the API response
-        prompt_tokens = response.usage.prompt_tokens
-        completion_tokens = response.usage.completion_tokens
+        label_obj = NewsLabel.model_validate_json(clean_json)
+        
+        prompt_tokens = response.usage.prompt_tokens if response.usage else 0
+        completion_tokens = response.usage.completion_tokens if response.usage else 0
 
         return label_obj, prompt_tokens, completion_tokens
     except Exception as e:
-        print(f"[ERROR] Groq API Call Failed: {e}")
+        print(f"[ERROR] Classification failed: {e}")
         return None, 0, 0
 
 
