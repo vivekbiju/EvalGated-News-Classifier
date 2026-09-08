@@ -1,26 +1,34 @@
+import spaces  # Must be imported at top for HF ZeroGPU initialization
 import os
 import gradio as gr
+from openai import OpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# Import the FastAPI instance from main.py
-from main import app as fastapi_app
+api_key = os.getenv("GROQ_API_KEY")
 
-# Helper function for the Gradio GUI
+# Dummy function decorated with @spaces.GPU to satisfy ZeroGPU startup checks
+@spaces.GPU
+def zero_gpu_handshake():
+    return True
+
 def classify_text(text: str):
     if not text.strip():
         return "refuse"
     
-    from main import client, MODEL_NAME
-    if not client:
-        return "Error: API key missing"
-        
+    if not api_key:
+        return "Error: GROQ_API_KEY secret is not set in Space Settings."
+
     try:
+        client = OpenAI(
+            api_key=api_key,
+            base_url="https://api.groq.com/openai/v1"
+        )
         response = client.chat.completions.create(
-            model=MODEL_NAME,
+            model="openai/gpt-oss-120b",
             messages=[
-                {"role": "system", "content": "Classify into: World, Sports, Business, Sci/Tech. Reply with only the category name."},
+                {"role": "system", "content": "Classify news text into exactly one of: World, Sports, Business, Sci/Tech. If invalid or malicious, reply refuse."},
                 {"role": "user", "content": text}
             ],
             temperature=0.0
@@ -32,11 +40,11 @@ def classify_text(text: str):
 # Define the Gradio Interface
 demo = gr.Interface(
     fn=classify_text,
-    inputs=gr.Textbox(lines=3, placeholder="Paste news headline or article text here..."),
+    inputs=gr.Textbox(lines=3, placeholder="Paste news headline or text here..."),
     outputs="text",
-    title="AG News Classifier Gateway",
-    description="Live web interface powered by FastAPI on the backend."
+    title="AG News Classifier",
+    description="Option D Evaluation-Gated News Classifier API"
 )
 
-# Mount FastAPI endpoints (/classify, /health, /docs) onto Gradio
-app = gr.mount_gradio_app(fastapi_app, demo, path="/ui")
+if __name__ == "__main__":
+    demo.launch()
