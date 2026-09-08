@@ -241,4 +241,4 @@ Developed by **Vivek Biju** as part of the Option D Evaluation-Gated AI Engineer
 
 ## License
 
-This project is licensed under the MIT License[.License] - see the LICENSE file for details.
+This project is licensed under the [MIT LICENSE](./LICENSE) - see the LICENSE file for details.
