@@ -1,4 +1,4 @@
-```markdown
+
 ---
 title: EvalGated News Classifier
 emoji: 🚀
