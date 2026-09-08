@@ -4,15 +4,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Import the existing FastAPI app instance from main.py
+# Import the FastAPI instance from main.py
 from main import app as fastapi_app
 
-# Simple helper function for the Gradio web GUI
+# Helper function for the Gradio GUI
 def classify_text(text: str):
     if not text.strip():
         return "refuse"
     
-    # Imports the classification logic dynamically to keep app light
     from main import client, MODEL_NAME
     if not client:
         return "Error: API key missing"
@@ -30,7 +29,7 @@ def classify_text(text: str):
     except Exception as e:
         return f"Error: {str(e)}"
 
-# Create visual interface
+# Define the Gradio Interface
 demo = gr.Interface(
     fn=classify_text,
     inputs=gr.Textbox(lines=3, placeholder="Paste news headline or article text here..."),
@@ -39,9 +38,5 @@ demo = gr.Interface(
     description="Live web interface powered by FastAPI on the backend."
 )
 
-# Mount the FastAPI instance onto Gradio so REST endpoints (/classify, /health, /docs) work
+# Mount FastAPI endpoints (/classify, /health, /docs) onto Gradio
 app = gr.mount_gradio_app(fastapi_app, demo, path="/ui")
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=7860)
