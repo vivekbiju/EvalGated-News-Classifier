@@ -1,5 +1,6 @@
 
 ---
+```
 title: EvalGated News Classifier
 emoji: 🚀
 colorFrom: blue
@@ -7,6 +8,7 @@ colorTo: indigo
 sdk: gradio
 app_file: app.py
 pinned: false
+```
 ---
 
 # EvalGated News Classifier API
