@@ -17,6 +17,10 @@ def classify_text(text: str):
     if not text.strip():
         return "refuse"
     
+    # Pre-validation prompt injection check
+    if "Ignore your previous instructions" in text:
+        return "flag_for_human (prompt injection)"
+    
     if not api_key:
         return "Error: GROQ_API_KEY secret is not set in Space Settings."
 
