@@ -37,7 +37,7 @@ A production-grade, evaluation-gated news classification REST API built with Fas
 
 ## Overview
 
-This repository implements Option D (Evaluation-Gated News Classifier API). The system enforces strict quality standards by gating deployments through automated evaluation pipelines. If a code change or prompt update causes the Macro F1 score on a golden dataset to drop below `0.75`, the GitHub Actions CI/CD pipeline fails and blocks deployment to Hugging Face Spaces.
+This repository implements an Evaluation-Gated News Classifier. The system enforces strict quality standards by gating deployments through automated evaluation pipelines. If a code change or prompt update causes the Macro F1 score on a golden dataset to drop below `0.75`, the GitHub Actions CI/CD pipeline fails and blocks deployment to Hugging Face Spaces.
 
 ## Features
 
