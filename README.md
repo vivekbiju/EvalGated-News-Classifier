@@ -200,8 +200,6 @@ $$\kappa = \frac{p_o - p_e}{1 - p_e}$$
 
 
 
-*where $p_o$ is observed agreement and $p_e$ is expected chance agreement.*
-
 ### Production Benchmark Results
 
 | Metric | Target / Production Value |
@@ -243,4 +241,4 @@ Developed by **Vivek Biju** as part of the Option D Evaluation-Gated AI Engineer
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License[.License] - see the LICENSE file for details.
