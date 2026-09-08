@@ -1,43 +1,47 @@
 import os
 import gradio as gr
-from openai import OpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# Assign the variable first
-api_key = os.getenv("GROQ_API_KEY") or os.getenv("GEMINI_API_KEY")
+# Import the existing FastAPI app instance from main.py
+from main import app as fastapi_app
 
-if not api_key:
-    raise ValueError("GROQ_API_KEY or GEMINI_API_KEY environment variable is not set.")
-
-client = OpenAI(
-    api_key=api_key,
-    base_url="https://api.groq.com/openai/v1" if os.getenv("GROQ_API_KEY") else "https://generativelanguage.googleapis.com/v1beta/openai/"
-)
-MODEL_NAME = "openai/gpt-oss-120b" if os.getenv("GROQ_API_KEY") else "gemini-1.5-flash"
-
-def classify(text: str):
+# Simple helper function for the Gradio web GUI
+def classify_text(text: str):
     if not text.strip():
-        return "refuse (empty input)"
-    if "Ignore your previous instructions" in text:
-        return "flag_for_human (prompt injection)"
+        return "refuse"
+    
+    # Imports the classification logic dynamically to keep app light
+    from main import client, MODEL_NAME
+    if not client:
+        return "Error: API key missing"
+        
+    try:
+        response = client.chat.completions.create(
+            model=MODEL_NAME,
+            messages=[
+                {"role": "system", "content": "Classify into: World, Sports, Business, Sci/Tech. Reply with only the category name."},
+                {"role": "user", "content": text}
+            ],
+            temperature=0.0
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        return f"Error: {str(e)}"
 
-    response = client.chat.completions.create(
-        model=MODEL_NAME,
-        messages=[
-            {"role": "system", "content": "Classify into: World, Sports, Business, Sci/Tech. Reply with only the category name."},
-            {"role": "user", "content": text}
-        ],
-        temperature=0.0
-    )
-    return response.choices[0].message.content.strip()
-
+# Create visual interface
 demo = gr.Interface(
-    fn=classify,
-    inputs=gr.Textbox(lines=3, placeholder="Paste news text here..."),
+    fn=classify_text,
+    inputs=gr.Textbox(lines=3, placeholder="Paste news headline or article text here..."),
     outputs="text",
-    title="AG News Classifier"
+    title="AG News Classifier Gateway",
+    description="Live web interface powered by FastAPI on the backend."
 )
 
-demo.launch()
+# Mount the FastAPI instance onto Gradio so REST endpoints (/classify, /health, /docs) work
+app = gr.mount_gradio_app(fastapi_app, demo, path="/ui")
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=7860)
