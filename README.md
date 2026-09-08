@@ -218,8 +218,8 @@ $$\kappa = \frac{p_o - p_e}{1 - p_e}$$
 
 ## Screenshots
 
-* **Passing CI/CD Build:** Successful evaluation gate and deployment sync in GitHub Actions.
-* **Failing CI/CD Build:** Failure gate execution (`sys.exit(1)`) triggered when Macro F1 fell below the `0.75` threshold.
+<img width="1891" height="486" alt="image" src="https://github.com/user-attachments/assets/3932074b-e313-42b9-b1a3-2b79cc891ef7" />
+
 
 ## Deployment
 
