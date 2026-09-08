@@ -17,7 +17,7 @@ A production-grade, evaluation-gated news classification REST API built with Fas
 
 ## Table of Contents
 
-* [Overview](https://www.google.com/search?q=%23overview)
+* [Overview](./overview)
 * [Features](https://www.google.com/search?q=%23features)
 * [Tech Stack](https://www.google.com/search?q=%23tech-stack)
 * [Architecture](https://www.google.com/search?q=%23architecture)
