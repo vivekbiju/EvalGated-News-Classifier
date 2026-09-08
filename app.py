@@ -15,7 +15,7 @@ client = OpenAI(
     api_key=api_key,
     base_url="https://api.groq.com/openai/v1" if os.getenv("GROQ_API_KEY") else "https://generativelanguage.googleapis.com/v1beta/openai/"
 )
-MODEL_NAME = "llama-3.3-70b-versatile" if os.getenv("GROQ_API_KEY") else "gemini-1.5-flash"
+MODEL_NAME = "openai/gpt-oss-120b" if os.getenv("GROQ_API_KEY") else "gemini-1.5-flash"
 
 def classify(text: str):
     if not text.strip():

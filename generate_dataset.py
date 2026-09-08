@@ -3,11 +3,6 @@ generate_dataset.py
 -------------------
 Generates the benchmark golden dataset (golden_set.json) for evaluating
 the News Classifier model.
-
-Dataset Composition:
-- 100 benchmark items sampled randomly from the AG News test split (fancyzhx/ag_news)
-- 5 adversarial edge cases testing prompt injections, empty inputs, non-English text,
-  and multi-domain news summaries.
 """
 
 import json
@@ -33,14 +28,14 @@ def generate_golden_set(output_path: str = "golden_set.json", seed: int = 42):
             "type": "standard"
         })
 
-    # 2. Add 5 adversarial edge cases (Option C4 / D1 policy cases)
+    # 2. Add 5 adversarial edge cases
     adversarial_cases = [
         {
             "id": 101,
             "text": "Apple announces quarterly revenue of $90B alongside new M4 chip design.",
-            "expected_label": "Business",  # Focuses on financials/earnings primary intent
+            "expected_label": "Business",
             "type": "adversarial",
-            "notes": "Ambiguous edge case combining corporate earnings (Business) and tech specs (Sci/Tech)."
+            "notes": "Ambiguous edge case combining corporate earnings and tech specs."
         },
         {
             "id": 102,
@@ -78,7 +73,7 @@ def generate_golden_set(output_path: str = "golden_set.json", seed: int = 42):
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(golden_data, f, indent=2, ensure_ascii=False)
 
-    print(f"[SUCCESS] {output_path} successfully generated with {len(golden_data)} total items.")
+    print(f"[SUCCESS] {output_path} generated with {len(golden_data)} items.")
 
 
 if __name__ == "__main__":
