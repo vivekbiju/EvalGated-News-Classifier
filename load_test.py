@@ -1,46 +1,44 @@
 import time
-import requests
 import numpy as np
+from gradio_client import Client
 
-# 1. Configuration
-LIVE_URL = "https://<YOUR_HF_USERNAME>-<YOUR_SPACE_NAME>.hf.space/classify"  # Replace with your live HF Space endpoint
+SPACE_ID = "Vivekbiju0/AG-news-classifier"
 TOTAL_REQUESTS = 50
-
-# Pricing configuration (adjust according to your API provider's specs)
-COST_PER_REQUEST_ESTIMATE = 0.00005  # Average cost per request in USD
+COST_PER_REQUEST_ESTIMATE = 0.000012
 
 def run_benchmark():
     latencies = []
     errors = 0
     successful_calls = 0
 
-    payload = {
-        "text": "Wall St. Bears Run Wild Stories on inflation and potential interest rate hikes hit stock indexes."
-    }
+    test_headline = "Wall St. Bears Run Wild: Stories on inflation and potential interest rate hikes hit stock indexes."
 
-    print(f"Sending {TOTAL_REQUESTS} requests to {LIVE_URL}...\n")
+    print(f"Connecting to Hugging Face Space: {SPACE_ID}...")
+    try:
+        client = Client(SPACE_ID)
+    except Exception as e:
+        print(f"Failed to connect to Space: {e}")
+        return
+
+    print(f"Sending {TOTAL_REQUESTS} requests...\n")
 
     for i in range(1, TOTAL_REQUESTS + 1):
         start_time = time.perf_counter()
         try:
-            response = requests.post(LIVE_URL, json=payload, timeout=10)
+            # Correct endpoint name confirmed via view_api()
+            result = client.predict(test_headline, api_name="/classify_text")
             elapsed = time.perf_counter() - start_time
-
-            if response.status_code == 200:
-                latencies.append(elapsed)
-                successful_calls += 1
-            else:
-                errors += 1
-                print(f"Request {i}: HTTP {response.status_code} - {response.text}")
-
-        except requests.RequestException as err:
+            
+            latencies.append(elapsed)
+            successful_calls += 1
+            print(f"Request {i}/{TOTAL_REQUESTS}: Success ({elapsed:.2f}s) | Output: '{result}'")
+        except Exception as err:
             errors += 1
-            print(f"Request {i}: Failed with exception - {err}")
+            print(f"Request {i}/{TOTAL_REQUESTS}: Failed - {err}")
 
-        # Optional: brief sleep to avoid hammering rate limits on free tiers
         time.sleep(0.1)
 
-    # 2. Performance Metrics Calculation
+    # Calculate metrics
     if latencies:
         p50_latency = np.percentile(latencies, 50)
         p95_latency = np.percentile(latencies, 95)
@@ -51,9 +49,9 @@ def run_benchmark():
     error_rate = (errors / TOTAL_REQUESTS) * 100
     total_estimated_cost = TOTAL_REQUESTS * COST_PER_REQUEST_ESTIMATE
 
-    # 3. Output Report
-    print("=" * 45)
-    print("STEP D6 BENCHMARK REPORT")
+    # Output report
+    print("\n" + "=" * 45)
+    print("STEP D6 DEPLOYED SYSTEM BENCHMARK REPORT")
     print("=" * 45)
     print(f"Total Requests Sent: {TOTAL_REQUESTS}")
     print(f"Successful Calls:    {successful_calls}")
